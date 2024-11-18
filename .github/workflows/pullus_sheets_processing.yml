@@ -1,48 +1,39 @@
 name: Google Sheets Data Processing
-
 on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
-
 jobs:
   process-sheets-data:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pandas google-auth google-auth-oauthlib google-api-python-client gspread notebook
-
     - name: Create service account key file
       run: |
         python -c '
 import os
 import json
-
 creds_json = """${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}"""
 parsed = json.loads(creds_json)
 with open("credentials.json", "w") as f:
     json.dump(parsed, f, indent=2)
 '
-      
     - name: Convert Jupyter notebook to Python script
       run: |
         pip install nbconvert
         jupyter nbconvert --to script transformation.ipynb
-
     - name: Modify script to use environment credentials
       run: |
         sed -i 's/writetosheet-429121-bae3fcce69d0.json/credentials.json/g' transformation.py
-
     - name: Run data processing script
       env:
         SPREADSHEET_URL: ${{ secrets.SPREADSHEET_URL }}
