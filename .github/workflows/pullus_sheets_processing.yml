@@ -24,7 +24,15 @@ jobs:
 
     - name: Create service account key file
       run: |
-        echo '${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}' | sed 's/\\n/\n/g' > credentials.json
+        python -c '
+import os
+import json
+
+creds_json = """${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}"""
+parsed = json.loads(creds_json)
+with open("credentials.json", "w") as f:
+    json.dump(parsed, f, indent=2)
+'
       
     - name: Convert Jupyter notebook to Python script
       run: |
