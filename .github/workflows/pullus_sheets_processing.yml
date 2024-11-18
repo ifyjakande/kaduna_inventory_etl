@@ -19,14 +19,14 @@ jobs:
         pip install pandas google-auth google-auth-oauthlib google-api-python-client gspread notebook
     - name: Create service account key file
       run: |
-        python -c '
+        python -c "
 import os
 import json
-creds_json = """${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}"""
+creds_json = '${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}'
 parsed = json.loads(creds_json)
-with open("credentials.json", "w") as f:
+with open('credentials.json', 'w') as f:
     json.dump(parsed, f, indent=2)
-'
+"
     - name: Convert Jupyter notebook to Python script
       run: |
         pip install nbconvert
