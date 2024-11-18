@@ -2,14 +2,12 @@ name: Google Sheets Data Processing
 
 on:
   schedule:
-    # Runs at 00:00 UTC every day
     - cron: '0 0 * * *'
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   process-sheets-data:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -26,7 +24,7 @@ jobs:
 
     - name: Create service account key file
       run: |
-        echo "${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}" > credentials.json
+        echo '${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}' | sed 's/\\n/\n/g' > credentials.json
       
     - name: Convert Jupyter notebook to Python script
       run: |
