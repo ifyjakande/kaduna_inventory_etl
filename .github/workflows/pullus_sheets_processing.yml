@@ -2,7 +2,7 @@ name: Google Sheets Data Processing
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Runs hourly
+    - cron: '0 9-17 * * *'  # Runs every hour from 9am to 5pm
   workflow_dispatch:
 
 jobs:
