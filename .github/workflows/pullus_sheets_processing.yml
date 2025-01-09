@@ -1,7 +1,7 @@
 name: Google Sheets Data Processing
 on:
   schedule:
-    - cron: '0 8-16 * **'  # Runs every hour from 9am to 5pm
+    - cron: '0 8-16 * * *'  # Runs every hour from 8am-4pm UTC (9am-5pm WAT)
   workflow_dispatch:
 jobs:
   process-sheets-data:
