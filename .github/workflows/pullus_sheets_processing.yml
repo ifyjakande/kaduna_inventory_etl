@@ -1,10 +1,8 @@
 name: Google Sheets Data Processing
-
 on:
   schedule:
-    - cron: '0 8-16 * * *'  # Runs every hour from 9am to 5pm
+    - cron: '0 8-16 * **'  # Runs every hour from 9am to 5pm
   workflow_dispatch:
-
 jobs:
   process-sheets-data:
     runs-on: ubuntu-latest
@@ -17,11 +15,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
+          cache: 'pip'
+          cache-dependency-path: '**/requirements.txt'
           
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas google-auth google-auth-oauthlib google-api-python-client gspread notebook
+          pip install -r requirements.txt
           
       - name: Create service account key file
         env:
