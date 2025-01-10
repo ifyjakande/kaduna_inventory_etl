@@ -3,37 +3,39 @@ on:
   schedule:
     - cron: '0 8-16 * * *'  # Runs every hour from 8am-4pm UTC (9am-5pm WAT)
   workflow_dispatch:
+
 jobs:
   process-sheets-data:
+    name: Process Google Sheets Data  # Added display name
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
           cache: 'pip'
           cache-dependency-path: '**/requirements.txt'
           
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Create service account key file
+      - name: 🔑 Create service account key file
         env:
           CREDS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
         run: |
           echo "$CREDS" > credentials.json
           
-      - name: Convert Jupyter notebook to Python script
+      - name: 📝 Convert Jupyter notebook
         run: |
           jupyter nbconvert --to script transformation.ipynb
           
-      - name: Run data processing script
+      - name: 🔄 Run data processing script
         env:
           SPREADSHEET_URL: ${{ secrets.SPREADSHEET_URL }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
