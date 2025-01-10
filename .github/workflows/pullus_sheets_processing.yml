@@ -1,12 +1,14 @@
-name: Google Sheets Data Processing
+name: Pullus Sheets Processing  # Match the display name to your file name for consistency
+run-name: Process Google Sheets Data ${{ github.event.repository.name }}  # This adds a custom run name
+
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 8-16 * * *'  # Runs every hour from 8am-4pm UTC (9am-5pm WAT)
-  workflow_dispatch:
 
 jobs:
-  process-sheets-data:
-    name: Process Google Sheets Data  # Added display name
+  sheets-processing:  # Job ID
+    name: 📊 Process Google Sheets Data  # This will show in the visual flow
     runs-on: ubuntu-latest
     
     steps:
