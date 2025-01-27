@@ -3,7 +3,7 @@ name: Pullus Sheets Processing
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 8-16 * * *'  # Runs every hour from 8am-4pm UTC (9am-5pm WAT)
+    - cron: '*/30 * * * *'  
 
 jobs:
   sheets-processing:  # Job ID
