@@ -32,10 +32,6 @@ jobs:
         run: |
           echo "$CREDS" > credentials.json
           
-      - name: 📝 Convert Jupyter notebook
-        run: |
-          jupyter nbconvert --to script transformation.ipynb
-          
       - name: 🔄 Run data processing script
         env:
           SPREADSHEET_URL: ${{ secrets.SPREADSHEET_URL }}
