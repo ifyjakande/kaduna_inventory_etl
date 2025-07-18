@@ -362,8 +362,8 @@ def process_sheets_data(stock_inflow_df: pd.DataFrame,
         
         # Standardize product names to match between inflow and release
         if 'product' in release_df.columns:
-            # Convert release product names to match inflow format (title case)
-            release_df['product'] = release_df['product'].str.title()
+            # Convert release product names to match inflow format (lowercase)
+            release_df['product'] = release_df['product'].str.lower()
         
         stock_inflow_main_df = stock_inflow_df
         release_df, _ = remove_opening_stock(release_df, 'name_of_collector')
