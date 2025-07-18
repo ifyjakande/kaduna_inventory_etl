@@ -351,6 +351,10 @@ def process_sheets_data(stock_inflow_df: pd.DataFrame,
         stock_inflow_df = standardize_dataframe(stock_inflow_df)
         release_df = standardize_dataframe(release_df)
         
+        # Filter out rows with empty dates since date is required
+        stock_inflow_df = stock_inflow_df[stock_inflow_df['date'].notna() & (stock_inflow_df['date'] != '')]
+        release_df = release_df[release_df['date'].notna() & (release_df['date'] != '')]
+        
         stock_inflow_df = standardize_dates(stock_inflow_df)
         release_df = standardize_dates(release_df)
         
