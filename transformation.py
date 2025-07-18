@@ -136,7 +136,6 @@ def remove_opening_stock(df: pd.DataFrame, column_name: str) -> Tuple[pd.DataFra
 
 def create_summary_df(stock_inflow_df: pd.DataFrame, release_df: pd.DataFrame) -> pd.DataFrame:
     try:
-        print("\nCreating summary dataframe...")
         
         all_year_months = sorted(list(set(stock_inflow_df['year_month'].unique()) | 
                                     set(release_df['year_month'].unique())))
@@ -147,7 +146,6 @@ def create_summary_df(stock_inflow_df: pd.DataFrame, release_df: pd.DataFrame) -
         
         # Get unique product types dynamically from the data
         unique_product_types = stock_inflow_df['product_type'].dropna().unique()
-        print(f"\\nFound product types: {unique_product_types}")
         
         # Create dynamic product summaries for both inflow and release
         product_summaries = {}
@@ -374,7 +372,6 @@ def process_sheets_data(stock_inflow_df: pd.DataFrame,
             release_df['product'] = release_df['product'].str.lower()
         
         stock_inflow_main_df = stock_inflow_df
-        release_df, _ = remove_opening_stock(release_df, 'name_of_collector')
         
         release_df.loc[
             release_df['product'].str.contains('gizzard', 
