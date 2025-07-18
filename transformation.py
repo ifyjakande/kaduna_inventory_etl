@@ -21,7 +21,7 @@ PRODUCT_TYPES = {
     'GIZZARD': 'gizzard'
 }
 
-DATE_FORMATS = ['%d %b %Y', '%d/%m/%y']
+DATE_FORMATS = ['%d %b %Y', '%d/%m/%y', '%d-%b-%Y']
 GOOGLE_SHEETS_SCOPE = ['https://www.googleapis.com/auth/spreadsheets']
 
 class DataProcessingError(Exception):
