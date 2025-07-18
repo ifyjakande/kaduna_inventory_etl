@@ -353,9 +353,17 @@ def process_sheets_data(stock_inflow_df: pd.DataFrame,
         stock_inflow_df = standardize_dataframe(stock_inflow_df)
         release_df = standardize_dataframe(release_df)
         
-        # Filter out rows with empty dates since date is required
-        stock_inflow_df = stock_inflow_df[stock_inflow_df['date'].notna() & (stock_inflow_df['date'] != '')]
-        release_df = release_df[release_df['date'].notna() & (release_df['date'] != '')]
+        # Check for missing dates and throw error if found
+        missing_dates_inflow = stock_inflow_df['date'].isna() | (stock_inflow_df['date'] == '')
+        missing_dates_release = release_df['date'].isna() | (release_df['date'] == '')
+        
+        if missing_dates_inflow.any():
+            missing_count = missing_dates_inflow.sum()
+            raise DataProcessingError(f"Found {missing_count} records with missing dates in stock_inflow sheet. All records must have valid dates.")
+        
+        if missing_dates_release.any():
+            missing_count = missing_dates_release.sum()
+            raise DataProcessingError(f"Found {missing_count} records with missing dates in release sheet. All records must have valid dates.")
         
         stock_inflow_df = standardize_dates(stock_inflow_df)
         release_df = standardize_dates(release_df)
