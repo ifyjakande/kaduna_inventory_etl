@@ -32,13 +32,10 @@ def get_credentials(credentials_file: str) -> service_account.Credentials:
     except Exception as e:
         raise DataProcessingError(f"Failed to create credentials: {str(e)}")
 
-def connect_to_sheets(credentials: service_account.Credentials) -> gspread.Spreadsheet:
+def connect_to_sheets(credentials: service_account.Credentials, spreadsheet_id: str) -> gspread.Spreadsheet:
     try:
         gc = gspread.authorize(credentials)
-        spreadsheet_url = os.getenv('SPREADSHEET_URL')
-        if not spreadsheet_url:
-            raise DataProcessingError("SPREADSHEET_URL environment variable not set")
-        return gc.open_by_url(spreadsheet_url)
+        return gc.open_by_key(spreadsheet_id)
     except Exception as e:
         raise DataProcessingError(f"Failed to connect to Google Sheets: {str(e)}")
 
@@ -390,18 +387,22 @@ def main():
     try:
         print("\nStarting data processing...")
         
-        spreadsheet_id = os.getenv('SPREADSHEET_ID')
-        if not spreadsheet_id:
-            raise DataProcessingError("SPREADSHEET_ID environment variable not set")
+        source_spreadsheet_id = os.getenv('SOURCE_SPREADSHEET_ID')
+        output_spreadsheet_id = os.getenv('OUTPUT_SPREADSHEET_ID')
+        
+        if not source_spreadsheet_id:
+            raise DataProcessingError("SOURCE_SPREADSHEET_ID environment variable not set")
+        if not output_spreadsheet_id:
+            raise DataProcessingError("OUTPUT_SPREADSHEET_ID environment variable not set")
             
         # Create credentials and services once
         credentials = get_credentials(CREDENTIALS_FILE)
-        spreadsheet = connect_to_sheets(credentials)
+        source_spreadsheet = connect_to_sheets(credentials, source_spreadsheet_id)
         sheets_service = build('sheets', 'v4', credentials=credentials)
         
-        # Read the worksheets
-        stock_inflow_df = read_worksheet_to_df(spreadsheet, SHEET_NAMES['STOCK_INFLOW'])
-        release_df = read_worksheet_to_df(spreadsheet, SHEET_NAMES['RELEASE'])
+        # Read the worksheets from source
+        stock_inflow_df = read_worksheet_to_df(source_spreadsheet, SHEET_NAMES['STOCK_INFLOW'])
+        release_df = read_worksheet_to_df(source_spreadsheet, SHEET_NAMES['RELEASE'])
         
         # Process the data
         stock_inflow_main_df, release_df, summary_df = process_sheets_data(
@@ -417,7 +418,7 @@ def main():
         # Upload all datasets
         success = True
         for df, sheet_name in upload_tasks:
-            if not upload_df_to_gsheet(df, spreadsheet_id, sheet_name, sheets_service):
+            if not upload_df_to_gsheet(df, output_spreadsheet_id, sheet_name, sheets_service):
                 success = False
                 print(f"Failed to upload {sheet_name}")
         
