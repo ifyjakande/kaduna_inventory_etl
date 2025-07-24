@@ -3,7 +3,7 @@ name: Pullus Sheets Processing
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'  
+    - cron: '*/20 * * * *'  
 
 jobs:
   sheets-processing:  # Job ID
