@@ -51,7 +51,7 @@ def read_worksheet_to_df(spreadsheet: gspread.Spreadsheet, worksheet_name: str) 
         df = pd.DataFrame(data, columns=headers)
         
         if 'date' in df.columns:
-            print(f"\nUnique date values in {worksheet_name}:")
+            print(f"\nProcessing dates in {worksheet_name}")
         
         return df
     except Exception as e:
@@ -111,8 +111,8 @@ def standardize_dates(df: pd.DataFrame) -> pd.DataFrame:
         
         if df['date'].isna().any():
             problematic_dates = df[df['date'].isna()]['date'].unique()
-            print("Warning: Failed to parse these dates:", problematic_dates)
-            raise DataProcessingError(f"Failed to parse dates: {problematic_dates}")
+            print(f"Warning: Failed to parse {len(problematic_dates)} date entries")
+            raise DataProcessingError(f"Failed to parse {len(problematic_dates)} date entries")
         
         df['month'] = df['date'].dt.strftime('%b').str.lower()
         df['year_month'] = df['date'].dt.strftime('%Y-%b')
@@ -456,10 +456,27 @@ def process_sheets_data(stock_inflow_df: pd.DataFrame,
         if 'customer_type' not in release_df.columns:
             raise DataProcessingError("customer_type column is missing from release sheet. All records must have customer type values.")
         
-        missing_customer_types = release_df['customer_type'].isna() | (release_df['customer_type'] == '') | (release_df['customer_type'].str.strip() == '')
+        # Check for various forms of missing customer type values
+        missing_customer_types = (
+            release_df['customer_type'].isna() | 
+            (release_df['customer_type'] == '') | 
+            (release_df['customer_type'].str.strip() == '') |
+            (release_df['customer_type'].str.lower() == 'nan') |
+            (release_df['customer_type'].str.lower() == 'none')
+        )
+        
         if missing_customer_types.any():
             missing_count = missing_customer_types.sum()
-            raise DataProcessingError(f"Found {missing_count} records with missing customer_type values in release sheet. All records must have valid customer type values.")
+            # Get row indices for better error reporting (adding 2 to account for header and 0-indexing)
+            missing_rows = release_df[missing_customer_types].index + 2
+            row_list = ', '.join(map(str, missing_rows.tolist()[:10]))  # Show first 10 rows
+            row_suffix = f" (showing first 10)" if len(missing_rows) > 10 else ""
+            
+            raise DataProcessingError(
+                f"Found {missing_count} records with missing customer_type values in release sheet. "
+                f"All records must have valid customer type values. "
+                f"Check spreadsheet rows: {row_list}{row_suffix}"
+            )
         
         # Standardize product names to match between inflow and release
         if 'product' in release_df.columns:
