@@ -217,7 +217,6 @@ def create_summary_df(stock_inflow_df: pd.DataFrame, release_df: pd.DataFrame) -
         if 'customer_type' in release_df.columns:
             # Get unique customer types
             customer_types = release_df['customer_type'].dropna().unique()
-            print(f"\nFound customer types: {list(customer_types)}")
             
             for target_product in target_products:
                 # Check if this product exists in release data
@@ -252,13 +251,11 @@ def create_summary_df(stock_inflow_df: pd.DataFrame, release_df: pd.DataFrame) -
                                     col_name = f'{clean_product}_release_{clean_customer_type}_quantity'
                                     summary_df[col_name] = summary_df['year_month'].map(
                                         customer_product_summary['quantity']).fillna(0)
-                                    print(f"Added column: {col_name}")
                                 
                                 if 'weight' in agg_dict:
                                     col_name = f'{clean_product}_release_{clean_customer_type}_weight'
                                     summary_df[col_name] = summary_df['year_month'].map(
                                         customer_product_summary['weight']).fillna(0)
-                                    print(f"Added column: {col_name}")
 
             # Validation: Ensure customer type columns sum to total columns
             for target_product in target_products:
@@ -456,6 +453,15 @@ def process_sheets_data(stock_inflow_df: pd.DataFrame,
         
         stock_inflow_df = standardize_dates(stock_inflow_df)
         release_df = standardize_dates(release_df)
+        
+        # Validate customer_type column exists and has no missing values
+        if 'customer_type' not in release_df.columns:
+            raise DataProcessingError("customer_type column is missing from release sheet. All records must have customer type values.")
+        
+        missing_customer_types = release_df['customer_type'].isna() | (release_df['customer_type'] == '') | (release_df['customer_type'].str.strip() == '')
+        if missing_customer_types.any():
+            missing_count = missing_customer_types.sum()
+            raise DataProcessingError(f"Found {missing_count} records with missing customer_type values in release sheet. All records must have valid customer type values.")
         
         # Standardize product names to match between inflow and release
         if 'product' in release_df.columns:
