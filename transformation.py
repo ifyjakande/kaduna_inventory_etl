@@ -277,8 +277,7 @@ def create_summary_df(stock_inflow_df: pd.DataFrame, release_df: pd.DataFrame) -
                         discrepancies = abs(customer_sum - total_values) > tolerance
                         
                         if discrepancies.any():
-                            print(f"Warning: Customer type quantity totals don't match for {target_product}")
-                            print(f"Rows with discrepancies: {discrepancies.sum()}")
+                            raise DataProcessingError(f"Customer type quantity validation failed for {target_product}. Contact administrator to review data integrity.")
                 
                 # Check weight validation
                 total_wt_col = f'total_{clean_product}_release_weight'
@@ -296,8 +295,7 @@ def create_summary_df(stock_inflow_df: pd.DataFrame, release_df: pd.DataFrame) -
                         discrepancies = abs(customer_sum - total_values) > tolerance
                         
                         if discrepancies.any():
-                            print(f"Warning: Customer type weight totals don't match for {target_product}")
-                            print(f"Rows with discrepancies: {discrepancies.sum()}")
+                            raise DataProcessingError(f"Customer type weight validation failed for {target_product}. Contact administrator to review data integrity.")
 
         # Sort by year_month in ascending order to process chronologically
         summary_df['sort_date'] = pd.to_datetime(summary_df['year_month'], format='%Y-%b')
