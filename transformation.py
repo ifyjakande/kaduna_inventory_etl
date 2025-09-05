@@ -33,11 +33,19 @@ def get_credentials(credentials_file: str) -> service_account.Credentials:
         raise DataProcessingError(f"Failed to create credentials: {str(e)}")
 
 def connect_to_sheets(credentials: service_account.Credentials, spreadsheet_id: str) -> gspread.Spreadsheet:
-    try:
-        gc = gspread.authorize(credentials)
-        return gc.open_by_key(spreadsheet_id)
-    except Exception as e:
-        raise DataProcessingError(f"Failed to connect to Google Sheets: {str(e)}")
+    import time
+    max_retries = 3
+    
+    for attempt in range(max_retries):
+        try:
+            gc = gspread.authorize(credentials)
+            return gc.open_by_key(spreadsheet_id)
+        except Exception as e:
+            if attempt < max_retries - 1 and "500" in str(e):
+                print(f"Attempt {attempt + 1} failed with 500 error, retrying in {2 ** attempt} seconds...")
+                time.sleep(2 ** attempt)
+                continue
+            raise DataProcessingError(f"Failed to connect to Google Sheets after {attempt + 1} attempts: {str(e)}")
 
 def read_worksheet_to_df(spreadsheet: gspread.Spreadsheet, worksheet_name: str) -> pd.DataFrame:
     try:
