@@ -4,6 +4,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import gspread
 import os
+import time
 from typing import Tuple, Dict, List, Any
 from datetime import datetime
 
@@ -33,7 +34,6 @@ def get_credentials(credentials_file: str) -> service_account.Credentials:
         raise DataProcessingError(f"Failed to create credentials: {str(e)}")
 
 def connect_to_sheets(credentials: service_account.Credentials, spreadsheet_id: str) -> gspread.Spreadsheet:
-    import time
     max_retries = 3
     
     for attempt in range(max_retries):
@@ -153,7 +153,6 @@ def create_summary_df(stock_inflow_df: pd.DataFrame, release_df: pd.DataFrame) -
         summary_df = summary_df[['month', 'year_month']]
         
         # Get unique product types dynamically from the data
-        unique_product_types = stock_inflow_df['product_type'].dropna().unique()
         
         # Create dynamic product summaries for both inflow and release
         product_summaries = {}
